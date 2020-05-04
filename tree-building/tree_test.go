@@ -222,6 +222,7 @@ func (n Node) String() string {
 
 func TestMakeTreeSuccess(t *testing.T) {
 	for _, tt := range successTestCases {
+		t.Logf("Running test case %q", tt.name)
 		actual, err := Build(tt.input)
 		if err != nil {
 			var _ error = err

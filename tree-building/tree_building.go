@@ -25,13 +25,19 @@ type Node struct {
 func (n *Node) add(r Record) {
 	if n.ID == r.Parent {
 		n.Children = append(n.Children, &Node{ID: r.ID})
-		sort.Slice(n.Children, func(i, j int) bool {
-			return n.Children[i].ID < n.Children[j].ID
-		})
+		return
 	}
 
-	for _, c := range n.Children {
-		c.add(r)
+	for i, c := range n.Children {
+		if c.ID == r.Parent {
+			c.Children = append(c.Children, &Node{ID: r.ID})
+			return
+		}
+
+		if c.ID > r.Parent {
+			n.Children[i-1].add(r)
+			return
+		}
 	}
 }
 
@@ -45,6 +51,7 @@ func Build(records []Record) (*Node, error) {
 		return records[i].ID < records[j].ID
 	})
 
+	// validation
 	if records[0].ID != 0 {
 		return nil, fmt.Errorf("no root node: %q", records)
 	}
@@ -68,21 +75,8 @@ func Build(records []Record) (*Node, error) {
 	}
 
 	root := &Node{ID: 0}
-
-	for _, r := range records {
-		if r.ID < 0 {
-			return nil, fmt.Errorf("invalid id: %q", r)
-		}
-		if r.Parent < 0 {
-			return nil, fmt.Errorf("invalid parent id: %q", r)
-		}
-		if r.ID == 0 {
-			continue
-		}
-
-		if r.ID > 0 {
-			root.add(r)
-		}
+	for i := 1; i < len(records); i++ {
+		root.add(records[i])
 	}
 
 	return root, nil
