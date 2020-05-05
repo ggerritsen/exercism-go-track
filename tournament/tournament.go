@@ -75,7 +75,7 @@ func (t *tournament) add(s score) {
 	}
 }
 
-func (t *tournament) String() string {
+func (t *tournament) print(w io.Writer) error {
 	var teamScores []*teamScore
 	for k, v := range t.internal {
 		v.name = k
@@ -90,12 +90,19 @@ func (t *tournament) String() string {
 		return teamScores[i].name < teamScores[j].name
 	})
 
-	var b strings.Builder
-	for _, s := range teamScores {
-		b.WriteString(fmt.Sprintf("%-31s| %2d | %2d | %2d | %2d | %2d\n", s.name, s.matchesPlayed, s.wins, s.draws, s.losses, s.points))
+	_, err := fmt.Fprintf(w, "%-31s| MP |  W |  D |  L |  P\n", "Team")
+	if err != nil {
+		return err
 	}
 
-	return b.String()
+	for _, s := range teamScores {
+		_, err := fmt.Fprintf(w,"%-31s| %2d | %2d | %2d | %2d | %2d\n", s.name, s.matchesPlayed, s.wins, s.draws, s.losses, s.points)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Tally reads all scores from r and writes the final tournament table to w.
@@ -105,12 +112,10 @@ func Tally(r io.Reader, w io.Writer) error {
 	sc := bufio.NewScanner(r)
 	for sc.Scan() {
 		text := strings.TrimSpace(sc.Text())
-		if len(text) == 0 {
-			continue
+		if len(text) == 0 || text[0] == '#' {
+			continue // ignore empty lines and comment lines
 		}
-		if text[0] == '#' {
-			continue // ignore comment lines
-		}
+
 		s, err := parse(text)
 		if err != nil {
 			return err
@@ -123,6 +128,5 @@ func Tally(r io.Reader, w io.Writer) error {
 		t.add(s)
 	}
 
-	_, err := w.Write([]byte("Team                           | MP |  W |  D |  L |  P\n" + t.String()))
-	return err
+	return t.print(w)
 }
