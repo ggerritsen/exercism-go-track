@@ -22,11 +22,7 @@ type myMatrix struct {
 }
 
 func (m *myMatrix) Rows() [][]int {
-	c := make([][]int, len(m.internal))
-	for i := 0; i < len(c); i++ {
-		c[i] = make([]int, len(m.internal[0]))
-	}
-
+	c := newMatrix(len(m.internal), len(m.internal[0]))
 	for i := 0; i < len(m.internal); i++ {
 		for j := 0; j < len(m.internal[i]); j++ {
 			c[i][j] = m.internal[i][j]
@@ -37,11 +33,7 @@ func (m *myMatrix) Rows() [][]int {
 }
 
 func (m *myMatrix) Cols() [][]int {
-	transposition := make([][]int, len(m.internal[0]))
-	for i := 0; i < len(transposition); i++ {
-		transposition[i] = make([]int, len(m.internal))
-	}
-
+	transposition := newMatrix(len(m.internal[0]), len(m.internal))
 	for i := 0; i < len(m.internal); i++ {
 		for j := 0; j < len(m.internal[i]); j++ {
 			transposition[j][i] = m.internal[i][j]
@@ -49,6 +41,14 @@ func (m *myMatrix) Cols() [][]int {
 	}
 
 	return transposition
+}
+
+func newMatrix(r, c int) [][]int {
+	m := make([][]int, r)
+	for i := 0; i < r; i++ {
+		m[i] = make([]int, c)
+	}
+	return m
 }
 
 func (m *myMatrix) Set(row, col, val int) bool {
@@ -70,17 +70,11 @@ func New(s string) (Matrix, error) {
 	}
 
 	rows := strings.Split(s, "\n")
-	width := -1
+	width := len(strings.Split(strings.TrimSpace(rows[0]), " "))
 
-	m := &myMatrix{internal: make([][]int, len(rows))}
+	m := &myMatrix{internal: newMatrix(len(rows), width)}
 	for i, row := range rows {
 		columns := strings.Split(strings.TrimSpace(row), " ")
-		if width == -1 {
-			width = len(columns)
-			for i := 0; i < len(m.internal); i++ {
-				m.internal[i] = make([]int, width)
-			}
-		}
 		if len(columns) != width {
 			return nil, fmt.Errorf("inbalanced matrix %q", s)
 		}
