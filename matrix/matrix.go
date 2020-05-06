@@ -20,14 +20,14 @@ type Matrix interface {
 type myMatrix [][]int
 
 func (m myMatrix) Rows() [][]int {
-	c := newMatrix(len(m), len(m[0]))
+	cp := newMatrix(len(m), len(m[0]))
 	for i := 0; i < len(m); i++ {
 		for j := 0; j < len(m[i]); j++ {
-			c[i][j] = m[i][j]
+			cp[i][j] = m[i][j]
 		}
 	}
 
-	return c
+	return cp
 }
 
 func (m myMatrix) Cols() [][]int {
