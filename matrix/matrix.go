@@ -17,33 +17,31 @@ type Matrix interface {
 	Set(row, col, val int) bool
 }
 
-type myMatrix struct {
-	internal [][]int
-}
+type myMatrix [][]int
 
-func (m *myMatrix) Rows() [][]int {
-	c := newMatrix(len(m.internal), len(m.internal[0]))
-	for i := 0; i < len(m.internal); i++ {
-		for j := 0; j < len(m.internal[i]); j++ {
-			c[i][j] = m.internal[i][j]
+func (m myMatrix) Rows() [][]int {
+	c := newMatrix(len(m), len(m[0]))
+	for i := 0; i < len(m); i++ {
+		for j := 0; j < len(m[i]); j++ {
+			c[i][j] = m[i][j]
 		}
 	}
 
 	return c
 }
 
-func (m *myMatrix) Cols() [][]int {
-	transposition := newMatrix(len(m.internal[0]), len(m.internal))
-	for i := 0; i < len(m.internal); i++ {
-		for j := 0; j < len(m.internal[i]); j++ {
-			transposition[j][i] = m.internal[i][j]
+func (m myMatrix) Cols() [][]int {
+	transposition := newMatrix(len(m[0]), len(m))
+	for i := 0; i < len(m); i++ {
+		for j := 0; j < len(m[i]); j++ {
+			transposition[j][i] = m[i][j]
 		}
 	}
 
 	return transposition
 }
 
-func newMatrix(r, c int) [][]int {
+func newMatrix(r, c int) myMatrix {
 	m := make([][]int, r)
 	for i := 0; i < r; i++ {
 		m[i] = make([]int, c)
@@ -51,15 +49,15 @@ func newMatrix(r, c int) [][]int {
 	return m
 }
 
-func (m *myMatrix) Set(row, col, val int) bool {
+func (m myMatrix) Set(row, col, val int) bool {
 	if row < 0 || col < 0 {
 		return false
 	}
-	if row > len(m.internal)-1 || col > len(m.internal[0])-1 {
+	if row > len(m)-1 || col > len(m[0])-1 {
 		return false
 	}
 
-	m.internal[row][col] = val
+	m[row][col] = val
 	return true
 }
 
@@ -72,7 +70,7 @@ func New(s string) (Matrix, error) {
 	rows := strings.Split(s, "\n")
 	width := len(strings.Split(strings.TrimSpace(rows[0]), " "))
 
-	m := &myMatrix{internal: newMatrix(len(rows), width)}
+	m := newMatrix(len(rows), width)
 	for i, row := range rows {
 		columns := strings.Split(strings.TrimSpace(row), " ")
 		if len(columns) != width {
