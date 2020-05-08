@@ -31,10 +31,10 @@ func (a *myAccount) Close() (payout int64, ok bool) {
 		return 0, false
 	}
 
-	bal := a.balance
+	b := a.balance
 	a.balance = 0
 	a.closed = true
-	return bal, true
+	return b, true
 }
 
 func (a *myAccount) Balance() (balance int64, ok bool) {
